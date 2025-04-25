@@ -3,75 +3,64 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(bodyParser.json());
 
-// In-memory storage for users and appointments
-let users = [];
-let appointments = [];
+const users = [];
+const appointments = [];
 
-// Example of a basic test route
+// Test route
 app.get('/api/test', (req, res) => {
-    res.json({ message: 'Backend is working!' });
+  res.json({ message: 'Backend is working!' });
 });
 
-app.get('/appointments', (req, res) => {
-  res.json(appointments);
-});
-
-
-// Register route
+// Registration
 app.post('/register', (req, res) => {
   const { email, password, role } = req.body;
+  if (!email || !password || !role) return res.status(400).json({ message: 'All fields required' });
+
   if (users.find(u => u.email === email)) {
     return res.status(400).json({ message: 'User already exists' });
   }
+
   users.push({ email, password, role });
   res.json({ message: 'Registered successfully' });
 });
 
-// Login route
+// Login
 app.post('/login', (req, res) => {
   const { email, password, role } = req.body;
   const user = users.find(u => u.email === email && u.password === password && u.role === role);
   if (!user) return res.status(401).json({ message: 'Invalid credentials' });
+
   res.json({ message: 'Login successful', email, role });
 });
 
-// Route to handle appointment booking
+// Book appointment
 app.post('/appointments', (req, res) => {
-    const { doctorId, problem, appointmentDate, patientEmail } = req.body;
+  const { doctor, date, time, problem, patientEmail } = req.body;
+  if (!doctor || !date || !time || !problem || !patientEmail) {
+    return res.status(400).json({ message: 'All fields are required' });
+  }
 
-    // Store the appointment in memory
-    const appointment = { doctorId, problem, appointmentDate, patientEmail };
-    appointments.push(appointment);
-
-    console.log('Appointment booked:', appointment);  // Log to verify
-
-    res.json({ message: 'Appointment booked successfully!' });
+  appointments.push({ doctor, date, time, problem, patientEmail });
+  res.json({ message: 'Appointment booked' });
 });
 
-// Route to view all appointments for a specific patient
+// View appointments by patient
 app.get('/appointments/:email', (req, res) => {
-    const patientEmail = req.params.email;
-    const patientAppointments = appointments.filter(app => app.patientEmail === patientEmail);
-    
-    res.json(patientAppointments);  // Send back the patient-specific appointments
+  const patientEmail = req.params.email;
+  const result = appointments.filter(app => app.patientEmail === patientEmail);
+  res.json(result);
 });
 
-// Fetch available doctors (mock data for now)
-app.get('/api/doctors', (req, res) => {
-    const doctors = [
-        { id: '1', name: 'Dr. Smith', specialization: 'Cardiologist' },
-        { id: '2', name: 'Dr. Johnson', specialization: 'Neurologist' },
-        { id: '3', name: 'Dr. Lee', specialization: 'Dermatologist' }
-    ];
-    res.json(doctors);
+// View all appointments (doctor/nurse)
+app.get('/all-appointments', (req, res) => {
+  res.json(appointments);
 });
 
-// Start server
 app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Server running on http://localhost:${PORT}`);
 });
