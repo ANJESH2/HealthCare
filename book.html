@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Book Appointment</title>
+</head>
+<body>
+  <h1>Book an Appointment</h1>
+
+  <form id="appointment-form">
+    <label for="doctor">Select Doctor:</label>
+    <select id="doctor" name="doctor" required></select><br><br>
+
+    <label for="date">Date:</label>
+    <input type="date" id="date" name="date" required><br><br>
+
+    <label for="time">Time:</label>
+    <input type="time" id="time" name="time" required><br><br>
+
+    <label for="problem">Describe your problem:</label><br>
+    <textarea id="problem" name="problem" required></textarea><br><br>
+
+    <button type="submit">Book Appointment</button>
+  </form>
+
+  <p id="status"></p>
+
+  <script>
+    const backendUrl = 'https://healthcare-nxad.onrender.com'; // Replace with your backend
+
+    // Load session
+    const session = JSON.parse(localStorage.getItem('session'));
+    if (!session || session.role !== 'patient') {
+      alert('Unauthorized. Please login as a patient.');
+      window.location.href = 'index.html';
+    }
+
+    // Populate doctor dropdown
+    fetch(`${backendUrl}/api/doctors`) // Assuming you have this endpoint
+      .then(res => res.json())
+      .then(data => {
+        const select = document.getElementById('doctor');
+        data.forEach(doctor => {
+          const option = document.createElement('option');
+          option.value = doctor.name;
+          option.textContent = `${doctor.name} - ${doctor.specialization}`;
+          select.appendChild(option);
+        });
+      })
+      .catch(err => {
+        console.error('Error loading doctors', err);
+      });
+
+    // Handle form submission
+    document.getElementById('appointment-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const doctor = document.getElementById('doctor').value;
+      const date = document.getElementById('date').value;
+      const time = document.getElementById('time').value;
+      const problem = document.getElementById('problem').value;
+      const patientEmail = session.email;
+
+      fetch(`${backendUrl}/appointments`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ doctor, date, time, problem, patientEmail })
+      })
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('status').textContent = 'Appointment booked successfully!';
+      })
+      .catch(err => {
+        document.getElementById('status').textContent = 'Error booking appointment.';
+        console.error(err);
+      });
+    });
+  </script>
+</body>
+</html>
