@@ -12,6 +12,14 @@ app.use(bodyParser.json());
 const users = [];
 const appointments = [];
 
+
+// Example of a basic test route
+app.get('/api/test', (req, res) => {
+    res.json({ message: 'Backend is working!' });
+});
+
+
+
 app.post('/register', (req, res) => {
   const { email, password, role } = req.body;
   if (users.find(u => u.email === email)) {
