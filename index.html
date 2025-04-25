@@ -6,21 +6,9 @@
   <title>Login/Register - Healthcare App</title>
 </head>
 <body>
-  <h1>Healthcare Management System</h1>
+  <h1>Welcome to the Healthcare Management System</h1>
 
-  <h2>Register</h2>
-  <form id="register-form">
-    <input type="email" id="reg-email" placeholder="Email" required><br>
-    <input type="password" id="reg-password" placeholder="Password" required><br>
-    <select id="reg-role" required>
-      <option value="">Select Role</option>
-      <option value="doctor">Doctor</option>
-      <option value="nurse">Nurse</option>
-      <option value="patient">Patient</option>
-    </select><br>
-    <button type="submit">Register</button>
-  </form>
-
+  <!-- Login Section -->
   <h2>Login</h2>
   <form id="login-form">
     <input type="email" id="login-email" placeholder="Email" required><br>
@@ -34,27 +22,26 @@
     <button type="submit">Login</button>
   </form>
 
+  <hr>
+
+  <!-- Registration Section -->
+  <h2>Don't have an account? Register here:</h2>
+  <form id="register-form">
+    <input type="email" id="reg-email" placeholder="Email" required><br>
+    <input type="password" id="reg-password" placeholder="Password" required><br>
+    <select id="reg-role" required>
+      <option value="">Select Role</option>
+      <option value="doctor">Doctor</option>
+      <option value="nurse">Nurse</option>
+      <option value="patient">Patient</option>
+    </select><br>
+    <button type="submit">Register</button>
+  </form>
+
   <script>
     const backendUrl = 'https://healthcare-nxad.onrender.com';
 
-    // Registration
-    document.getElementById('register-form').addEventListener('submit', function (e) {
-      e.preventDefault();
-      const email = document.getElementById('reg-email').value;
-      const password = document.getElementById('reg-password').value;
-      const role = document.getElementById('reg-role').value;
-
-      fetch(`${backendUrl}/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, role })
-      })
-      .then(res => res.json())
-      .then(data => alert(data.message))
-      .catch(err => console.error(err));
-    });
-
-    // Login
+    // Handle login
     document.getElementById('login-form').addEventListener('submit', function (e) {
       e.preventDefault();
       const email = document.getElementById('login-email').value;
@@ -69,11 +56,11 @@
       .then(res => res.json())
       .then(data => {
         if (data.message === 'Login successful') {
-          // Save session to localStorage (you can use cookies as well)
+          // Save session
           localStorage.setItem('session', JSON.stringify({
             email: data.email,
             role: data.role,
-            expires: Date.now() + 3600000 // 1 hour session
+            expires: Date.now() + 3600000 // 1 hour
           }));
           // Redirect to homepage
           window.location.href = `homepage.html?role=${data.role}`;
@@ -81,7 +68,30 @@
           alert(data.message);
         }
       })
-      .catch(err => console.error(err));
+      .catch(err => {
+        console.error(err);
+        alert('Login failed');
+      });
+    });
+
+    // Handle registration
+    document.getElementById('register-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const email = document.getElementById('reg-email').value;
+      const password = document.getElementById('reg-password').value;
+      const role = document.getElementById('reg-role').value;
+
+      fetch(`${backendUrl}/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, role })
+      })
+      .then(res => res.json())
+      .then(data => alert(data.message))
+      .catch(err => {
+        console.error(err);
+        alert('Registration failed');
+      });
     });
   </script>
 </body>
