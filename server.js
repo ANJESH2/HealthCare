@@ -17,6 +17,11 @@ app.get('/api/test', (req, res) => {
     res.json({ message: 'Backend is working!' });
 });
 
+app.get('/appointments', (req, res) => {
+  res.json(appointments);
+});
+
+
 // Register route
 app.post('/register', (req, res) => {
   const { email, password, role } = req.body;
