@@ -1,0 +1,130 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Healthcare Management App</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    .hidden { display: none; }
+    .section { margin-top: 20px; border: 1px solid #ccc; padding: 10px; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <h2>Healthcare Login</h2>
+  <form id="loginForm">
+    <label>Email: <input type="email" id="email" required></label><br><br>
+    <label>Password: <input type="password" id="password" required></label><br><br>
+    <label>Role:
+      <select id="role">
+        <option value="doctor">Doctor</option>
+        <option value="nurse">Nurse</option>
+        <option value="patient">Patient</option>
+      </select>
+    </label><br><br>
+    <button type="submit">Login</button>
+  </form>
+
+  <div id="dashboard" class="hidden">
+    <h2 id="welcome"></h2>
+    <div id="common" class="section">
+      <h3>Available Doctors</h3>
+      <ul id="doctorList"></ul>
+      <h4>Book Appointment</h4>
+      <form id="appointmentForm">
+        <label>Doctor:
+          <select id="doctorSelect"></select>
+        </label><br><br>
+        <label>Date: <input type="date" id="apptDate" required></label><br><br>
+        <label>Time: <input type="time" id="apptTime" required></label><br><br>
+        <label>Problem: <input type="text" id="problem" required></label><br><br>
+        <button type="submit">Book</button>
+      </form>
+    </div>
+
+    <div id="doctorPanel" class="section hidden">
+      <h3>Doctor Panel</h3>
+      <p>View and update all patients' treatment records.</p>
+    </div>
+
+    <div id="nursePanel" class="section hidden">
+      <h3>Nurse Panel</h3>
+      <p>Access assigned patients and update treatments.</p>
+    </div>
+
+    <div id="patientPanel" class="section hidden">
+      <h3>Patient Panel</h3>
+      <p>View your medical records and appointments.</p>
+    </div>
+
+    <div id="chatSection" class="section hidden">
+      <h3>Online Consultation Chat</h3>
+      <div id="chatBox" style="border: 1px solid #ccc; height: 100px; overflow-y: auto; padding: 5px;"></div>
+      <input type="text" id="chatInput" placeholder="Type message...">
+      <button onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+
+  <script>
+    const loginForm = document.getElementById('loginForm');
+    const dashboard = document.getElementById('dashboard');
+    const welcome = document.getElementById('welcome');
+    const doctorList = document.getElementById('doctorList');
+    const doctorSelect = document.getElementById('doctorSelect');
+    const doctorPanel = document.getElementById('doctorPanel');
+    const nursePanel = document.getElementById('nursePanel');
+    const patientPanel = document.getElementById('patientPanel');
+    const chatSection = document.getElementById('chatSection');
+
+    const availableDoctors = [
+      { name: "Dr. Smith", specialization: "Cardiology", available: true },
+      { name: "Dr. Jane", specialization: "Neurology", available: true },
+      { name: "Dr. Raj", specialization: "Pediatrics", available: false }
+    ];
+
+    loginForm.onsubmit = (e) => {
+      e.preventDefault();
+      const role = document.getElementById('role').value;
+      const email = document.getElementById('email').value;
+
+      loginForm.classList.add('hidden');
+      dashboard.classList.remove('hidden');
+      welcome.innerText = `Welcome, ${role.charAt(0).toUpperCase() + role.slice(1)} (${email})`;
+
+      doctorList.innerHTML = '';
+      doctorSelect.innerHTML = '';
+      availableDoctors.forEach(doc => {
+        if (doc.available) {
+          const li = document.createElement('li');
+          li.innerText = `${doc.name} - ${doc.specialization}`;
+          doctorList.appendChild(li);
+
+          const opt = document.createElement('option');
+          opt.value = doc.name;
+          opt.text = `${doc.name} - ${doc.specialization}`;
+          doctorSelect.appendChild(opt);
+        }
+      });
+
+      if (role === 'doctor') doctorPanel.classList.remove('hidden');
+      if (role === 'nurse') nursePanel.classList.remove('hidden');
+      if (role === 'patient') patientPanel.classList.remove('hidden');
+      chatSection.classList.remove('hidden');
+    }
+
+    document.getElementById('appointmentForm').onsubmit = (e) => {
+      e.preventDefault();
+      alert('Appointment booked with ' + document.getElementById('doctorSelect').value);
+    }
+
+    function sendMessage() {
+      const msg = document.getElementById('chatInput').value;
+      if (!msg) return;
+      const chatBox = document.getElementById('chatBox');
+      const line = document.createElement('div');
+      line.textContent = msg;
+      chatBox.appendChild(line);
+      document.getElementById('chatInput').value = '';
+    }
+  </script>
+</body>
+</html>
