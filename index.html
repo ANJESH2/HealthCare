@@ -1,82 +1,88 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Healthcare Management</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login/Register - Healthcare App</title>
 </head>
 <body>
-    <h1>Welcome to Healthcare Management System</h1>
+  <h1>Healthcare Management System</h1>
 
-    <h2>Available Doctors</h2>
-    <ul id="doctor-list"></ul>
+  <h2>Register</h2>
+  <form id="register-form">
+    <input type="email" id="reg-email" placeholder="Email" required><br>
+    <input type="password" id="reg-password" placeholder="Password" required><br>
+    <select id="reg-role" required>
+      <option value="">Select Role</option>
+      <option value="doctor">Doctor</option>
+      <option value="nurse">Nurse</option>
+      <option value="patient">Patient</option>
+    </select><br>
+    <button type="submit">Register</button>
+  </form>
 
-    <h2>Book an Appointment</h2>
-    <form id="appointment-form">
-        <label for="doctor">Select Doctor:</label>
-        <select id="doctor" name="doctor" required></select><br><br>
-        
-        <label for="email">Your Email:</label>
-        <input type="email" id="email" name="email" required placeholder="Enter your email"><br><br>
-        
-        <label for="problem">Describe your problem:</label><br>
-        <textarea id="problem" name="problem" required></textarea><br><br>
-        
-        <label for="appointment-date">Select Date and Time:</label>
-        <input type="datetime-local" id="appointment-date" required><br><br>
-        
-        <button type="submit">Book Appointment</button>
-    </form>
+  <h2>Login</h2>
+  <form id="login-form">
+    <input type="email" id="login-email" placeholder="Email" required><br>
+    <input type="password" id="login-password" placeholder="Password" required><br>
+    <select id="login-role" required>
+      <option value="">Select Role</option>
+      <option value="doctor">Doctor</option>
+      <option value="nurse">Nurse</option>
+      <option value="patient">Patient</option>
+    </select><br>
+    <button type="submit">Login</button>
+  </form>
 
-    <script>
-        const backendUrl = 'https://healthcare-nxad.onrender.com';
+  <script>
+    const backendUrl = 'https://healthcare-nxad.onrender.com';
 
-        // Fetch available doctors
-        fetch(`${backendUrl}/api/doctors`)
-            .then(response => response.json())
-            .then(data => {
-                const doctorList = document.getElementById('doctor-list');
-                const doctorSelect = document.getElementById('doctor');
-                data.forEach(doctor => {
-                    const listItem = document.createElement('li');
-                    listItem.textContent = `${doctor.name} - ${doctor.specialization}`;
-                    doctorList.appendChild(listItem);
-                    
-                    const option = document.createElement('option');
-                    option.value = doctor.id;
-                    option.textContent = `${doctor.name} - ${doctor.specialization}`;
-                    doctorSelect.appendChild(option);
-                });
-            })
-            .catch(error => console.error('Error fetching doctors:', error));
+    // Registration
+    document.getElementById('register-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const email = document.getElementById('reg-email').value;
+      const password = document.getElementById('reg-password').value;
+      const role = document.getElementById('reg-role').value;
 
-        // Handle appointment form submission
-        document.getElementById('appointment-form').addEventListener('submit', function(event) {
-            event.preventDefault();
+      fetch(`${backendUrl}/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, role })
+      })
+      .then(res => res.json())
+      .then(data => alert(data.message))
+      .catch(err => console.error(err));
+    });
 
-            // Get form values
-            const doctorId = document.getElementById('doctor').value;
-            const patientEmail = document.getElementById('email').value;  // Get the email from the form
-            const problem = document.getElementById('problem').value;
-            const appointmentDate = document.getElementById('appointment-date').value;
+    // Login
+    document.getElementById('login-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value;
+      const password = document.getElementById('login-password').value;
+      const role = document.getElementById('login-role').value;
 
-            // Send the form data to the backend
-            fetch(`${backendUrl}/appointments`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    doctorId: doctorId,
-                    problem: problem,
-                    appointmentDate: appointmentDate,
-                    patientEmail: patientEmail  // Include email in the request body
-                })
-            })
-            .then(response => response.json())
-            .then(data => alert(data.message))
-            .catch(error => console.error('Error booking appointment:', error));
-        });
-    </script>
+      fetch(`${backendUrl}/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, role })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.message === 'Login successful') {
+          // Save session to localStorage (you can use cookies as well)
+          localStorage.setItem('session', JSON.stringify({
+            email: data.email,
+            role: data.role,
+            expires: Date.now() + 3600000 // 1 hour session
+          }));
+          // Redirect to homepage
+          window.location.href = `homepage.html?role=${data.role}`;
+        } else {
+          alert(data.message);
+        }
+      })
+      .catch(err => console.error(err));
+    });
+  </script>
 </body>
 </html>
