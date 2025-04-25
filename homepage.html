@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Healthcare Home</title>
+</head>
+<body>
+  <h1>Welcome to Healthcare Management System</h1>
+  <div id="content"></div>
+
+  <button onclick="logout()">Logout</button>
+
+  <script>
+    const session = JSON.parse(localStorage.getItem('session'));
+    const contentDiv = document.getElementById('content');
+
+    if (!session || Date.now() > session.expires) {
+      alert('Session expired. Please login again.');
+      localStorage.removeItem('session');
+      window.location.href = 'index.html';
+    }
+
+    const role = session.role;
+    const email = session.email;
+
+    if (role === 'doctor' || role === 'nurse') {
+      contentDiv.innerHTML = `
+        <h2>Welcome ${role.toUpperCase()}</h2>
+        <p>You can view and manage all patient records and treatment details here.</p>
+      `;
+      // You can later fetch and show patient data
+    } else if (role === 'patient') {
+      contentDiv.innerHTML = `
+        <h2>Welcome PATIENT</h2>
+        <p>You can view your appointments and book a new one.</p>
+        <button onclick="window.location.href='book.html'">Book Appointment</button>
+      `;
+    } else {
+      contentDiv.innerHTML = '<p>Invalid role.</p>';
+    }
+
+    function logout() {
+      localStorage.removeItem('session');
+      window.location.href = 'index.html';
+    }
+  </script>
+</body>
+</html>
