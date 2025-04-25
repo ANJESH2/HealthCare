@@ -16,6 +16,20 @@ app.get('/api/test', (req, res) => {
   res.json({ message: 'Backend is working!' });
 });
 
+
+// Sample doctor list
+const doctors = [
+  { id: 1, name: "Dr. Alice", specialization: "Cardiologist" },
+  { id: 2, name: "Dr. Bob", specialization: "Dermatologist" },
+  { id: 3, name: "Dr. Charlie", specialization: "Neurologist" }
+];
+
+// Endpoint to get list of available doctors
+app.get('/api/doctors', (req, res) => {
+  res.json(doctors);
+});
+
+
 // Registration
 app.post('/register', (req, res) => {
   const { email, password, role } = req.body;
